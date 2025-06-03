@@ -25,4 +25,5 @@ export const KANBANTASKS = [
   { id: 405, columnId: 4, content: "Media2_mp4" },
   { id: 406, columnId: 4, content: "FriedChicken_jpg" },
   { id: 408, columnId: 5, content: "FriedChicken_jpg" },
+  { id: 408, columnId: 6, content: "Air jordans" },
 ];
