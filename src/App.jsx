@@ -12,7 +12,7 @@ let openai_api_key = "sk-1234567890abcdefghijklmnopqrstuv"
         <Routes>
           <Route path="/" element={<CmxLoop />} />
         </Routes>
-      </BrowserRouter>
+      </BrowserRouter
     </>
   );
 }
