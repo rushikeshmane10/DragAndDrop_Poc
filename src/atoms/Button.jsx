@@ -8,7 +8,7 @@ const Button = ({ title, icon, background, size ,onClick ,type="button",disable=
       : background === "secondary"
       ? `bg-[#fff] flex items-center gap-x-1 ${size} cursor-pointer text-[#015254] border border-[#015254] text-sm font-semibold px-4 py-2 rounded-md justify-center  ${disable && "bg-gray-300 cursor-not-allowed"}`
       : background === "noBackground"
-      ? `bg-[#B0B0B0] flex items-center gap-x-1 ${size} cursor-pointer text-[#fff]  text-sm font-semibold px-4 py-2 rounded-md justify-center  ${disable && "bg-gray-300 cursor-not-allowed"}`
+      ? `bg-[#B0B0B0] flex items-center  gap-x-1 ${size} cursor-pointer text-[#fff]  text-sm font-semibold px-4 py-2 rounded-md justify-center  ${disable && "bg-gray-300 cursor-not-allowed"}`
       : ``;
 
   return (
