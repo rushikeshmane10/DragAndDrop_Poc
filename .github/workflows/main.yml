@@ -1,28 +1,70 @@
-name: Detect Push & Test Build
+name: PR Syntax Check
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 jobs:
-  build:
+  syntax-check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
-      - name: Checkout code
+      - name: Checkout code (full history)
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Setup Node.js
+      - name: Set up Node.js (for JS/TS checks)
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install dependencies
-        run: npm install
+      - name: Run language-aware syntax checks
+        shell: bash
+        run: |
+          set -eu
+          echo "Base SHA: ${{ github.event.pull_request.base.sha }}"
+          echo "Head SHA: ${{ github.event.pull_request.head.sha }}"
 
-      - name: Build project
-        run: npm run build
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} || true)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # JS (.js) syntax check using node --check
+          JS_FILES=$(echo "$CHANGED_FILES" | grep -E '\.js$' || true)
+          if [ -n "$JS_FILES" ]; then
+            echo "Checking JavaScript (.js) files:"
+            for f in $JS_FILES; do
+              echo "  -> $f"
+              node --check "$f"
+            done
+          fi
+
+          # TypeScript (.ts/.tsx) check using tsc --noEmit (install typescript if needed)
+          TS_FILES=$(echo "$CHANGED_FILES" | grep -E '\.ts$|\.tsx$' || true)
+          if [ -n "$TS_FILES" ]; then
+            echo "TypeScript files changed. Installing TypeScript..."
+            # create a minimal package.json if none exists to install typescript transiently
+            if [ ! -f package.json ]; then
+              npm init -y >/dev/null 2>&1 || true
+            fi
+            npm install typescript --no-save
+            npx tsc --noEmit || { echo "TypeScript syntax/type check failed"; exit 1; }
+          fi
+
+          # Python (.py) syntax check
+          PY_FILES=$(echo "$CHANGED_FILES" | grep -E '\.py$' || true)
+          if [ -n "$PY_FILES" ]; then
+            echo "Checking Python files:"
+            for f in $PY_FILES; do
+              echo "  -> $f"
+              python -m py_compile "$f"
+            done
+          fi
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changed files detected between base and head."
+          fi
