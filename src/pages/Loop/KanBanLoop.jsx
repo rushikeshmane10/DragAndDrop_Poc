@@ -129,6 +129,7 @@ export function CmxLoop() {
                   onDeleteTask={handleDeleteTask}
                 />
               );
+              
             })}
           </SortableContext>
         </BoardContainer>
